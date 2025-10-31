@@ -1,0 +1,31 @@
+config:
+  target: "https://onpremise-elegislative-frontend.cloudmateria.com/"
+  phases:
+    # Ramp-Up Phase: Start with small traffic and gradually increase.
+    - duration: 300              # 5 minutes ramp-up
+      arrivalRate: 1             # Start with 1 user/sec
+      rampTo: 10                 # Ramp up to 10 users/sec over 5 minutes
+
+    # Steady Load Phase: Simulate steady traffic at 10 users/sec for 15 minutes
+    - duration: 900              # 15 minutes of steady load
+      arrivalRate: 10            # Sustained 10 users/sec (up to 50 concurrent users)
+
+    # Peak Load Phase: Simulate a small traffic peak at 20 users/sec for 5 minutes.
+    - duration: 300              # 5 minutes of peak load
+      arrivalRate: 20            # Ramp up to 20 users/sec
+
+    # Ramp-Down Phase: Gradually reduce load to normal.
+    - duration: 300              # 5 minutes ramp-down
+      arrivalRate: 5             # Reduce to 5 users/sec
+
+  tls:
+    rejectUnauthorized: false
+
+scenarios:
+  - name: "Team Load Test on /"
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          think: 1  # Think time to simulate real user behavior

@@ -1,0 +1,28 @@
+config:
+  target: "https://onpremise-elegislative-frontend.cloudmateria.com/"
+  phases:
+    - duration: 1800             # 30 minutes ramp-up
+      arrivalRate: 10            # Start with 10 users/sec initially
+      rampTo: 100               # Ramp up to 100 users/sec over 30 minutes
+
+    - duration: 1800             # 30 minutes steady load
+      arrivalRate: 100           # Sustain 100 users/sec for 30 minutes
+
+    - duration: 900              # 15 minutes peak load
+      arrivalRate: 200           # Ramp up to 200 users/sec for 15 minutes
+
+    - duration: 900              # 15 minutes ramp-down
+      arrivalRate: 50            # Ramp down to 50 users/sec over 15 minutes
+
+  tls:
+    rejectUnauthorized: false
+
+scenarios:
+  - name: "Barangay Load Test on /"
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          # Adding think time to simulate real user behavior
+          think: 1  # Random 1 second wait before the next request

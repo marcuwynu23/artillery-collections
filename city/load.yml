@@ -1,0 +1,23 @@
+config:
+  target: "https://onpremise-elegislative-frontend.cloudmateria.com/"
+  phases:
+    - duration: 3600             # 1 hour ramp-up
+      arrivalRate: 50            # 50 users/sec initially
+      rampTo: 500               # Ramp to 500 users/sec over the hour
+    - duration: 3600             # 1 hour steady load
+      arrivalRate: 500           # 500 users/sec for 1 hour
+    - duration: 1800             # 30 minutes ramp-down
+      arrivalRate: 50            # Ramp down to 50 users/sec over 30 minutes
+
+  tls:
+    rejectUnauthorized: false
+
+scenarios:
+  - name: "Simulate City-Sized Load on /"
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          # Adding think time to simulate real user behavior
+          think: 1  # Random 1 second wait before the next request
