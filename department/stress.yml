@@ -1,5 +1,5 @@
 config:
-  target: "https://onpremise-elegislative-frontend.cloudmateria.com/"
+  target: "https://example.com"
   phases:
     # Ramp-Up Phase: Gradually increase traffic to simulate user buildup.
     - duration: 300               # 5 minutes ramp-up

@@ -1,5 +1,5 @@
 config:
-  target: "https://onpremise-elegislative-frontend.cloudmateria.com/"
+  target: "https://example.com"
   phases:
     - duration: 1800             # 30 minutes ramp-up
       arrivalRate: 10            # Start with 10 users/sec initially
