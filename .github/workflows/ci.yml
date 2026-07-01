@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install ryl
+      run: pip install ryl
+
+    - name: Validate YAML with ryl
+      run: ryl . --format github
+
+    - name: Dry-run Artillery tests
+      shell: bash
+      run: |
+        set -euo pipefail
+        errors=0
+        while IFS= read -r -d '' f; do
+          echo "Dry-running: $f"
+          artillery run --dry-run "$f" 2>&1 || { errors=$((errors + 1)); echo "FAILED: $f"; }
+        done < <(find . -type f \( -name 'load.yml' -o -name 'stress.yml' \) -print0)
+        if [ "$errors" -gt 0 ]; then
+          echo "::error::$errors Artillery test(s) failed dry-run"
+          exit 1
+        fi
+        echo "All Artillery tests passed dry-run."
