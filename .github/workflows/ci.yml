@@ -37,7 +37,7 @@ jobs:
       if: steps.npm-cache.outputs.cache-hit != 'true'
       run: |
         npm config set prefix ~/.npm-global
-        npm install -g artillery js-yaml
+        npm install -g artillery
 
     - name: Add npm global bin to PATH
       run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
