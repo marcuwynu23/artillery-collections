@@ -17,10 +17,30 @@ jobs:
       with:
         node-version: 20
 
-    - name: Install tools
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: pip-ryl-0
+
+    - name: Cache npm global
+      id: npm-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm-global
+        key: npm-global-artillery-${{ runner.os }}
+
+    - name: Install ryl
+      run: pip install ryl
+
+    - name: Install artillery
+      if: steps.npm-cache.outputs.cache-hit != 'true'
       run: |
-        pip install ryl
+        npm config set prefix ~/.npm-global
         npm install -g artillery
+
+    - name: Add npm global bin to PATH
+      run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
 
     - name: Validate YAML with ryl
       run: ryl . --format github
@@ -29,11 +49,10 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        npx artillery --version
         errors=0
         while IFS= read -r -d '' f; do
           echo "Dry-running: $f"
-          npx artillery run --dry-run "$f" 2>&1 || { errors=$((errors + 1)); echo "FAILED: $f"; }
+          artillery run --dry-run "$f" 2>&1 || { errors=$((errors + 1)); echo "FAILED: $f"; }
         done < <(find . -type f \( -name 'load.yml' -o -name 'stress.yml' \) -print0)
         if [ "$errors" -gt 0 ]; then
           echo "::error::$errors Artillery test(s) failed dry-run"
