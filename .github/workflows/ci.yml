@@ -39,8 +39,10 @@ jobs:
         npm config set prefix ~/.npm-global
         npm install -g artillery
 
-    - name: Add npm global bin to PATH
-      run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
+    - name: Add npm global to PATH and NODE_PATH
+      run: |
+        echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
+        echo "NODE_PATH=$HOME/.npm-global/lib/node_modules" >> $GITHUB_ENV
 
     - name: Validate YAML with ryl
       run: ryl . --format github
