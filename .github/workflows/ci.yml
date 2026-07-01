@@ -37,7 +37,7 @@ jobs:
       if: steps.npm-cache.outputs.cache-hit != 'true'
       run: |
         npm config set prefix ~/.npm-global
-        npm install -g artillery
+        npm install -g artillery js-yaml
 
     - name: Add npm global bin to PATH
       run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
@@ -45,17 +45,10 @@ jobs:
     - name: Validate YAML with ryl
       run: ryl . --format github
 
-    - name: Dry-run Artillery tests
+    - name: Validate Artillery scripts
       shell: bash
       run: |
         set -euo pipefail
-        errors=0
-        while IFS= read -r -d '' f; do
-          echo "Dry-running: $f"
-          artillery run --dry-run "$f" 2>&1 || { errors=$((errors + 1)); echo "FAILED: $f"; }
-        done < <(find . -type f \( -name 'load.yml' -o -name 'stress.yml' \) -print0)
-        if [ "$errors" -gt 0 ]; then
-          echo "::error::$errors Artillery test(s) failed dry-run"
-          exit 1
-        fi
-        echo "All Artillery tests passed dry-run."
+        files=()
+        while IFS= read -r -d '' f; do files+=("$f"); done < <(find . -type f \( -name 'load.yml' -o -name 'stress.yml' \) -print0)
+        node .github/scripts/validate-artillery.js "${files[@]}"
